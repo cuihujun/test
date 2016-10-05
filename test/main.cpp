@@ -541,11 +541,11 @@ int main()
         list->insertTail(newNode);
     }
     
-    list->printList();
+    list->printList(); // OUTPUT: 1 4 3 4 4 3 6 7 4 4
     
     list->removeNodesEqualto(4);
-
-    list->printList();
+    
+    list->printList(); // OUTPUT: 1 3 3 6 7
     
     return 0 ;
 }

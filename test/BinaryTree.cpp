@@ -88,9 +88,12 @@ public:
     
     string serialize(TreeNode *root);
     TreeNode* deserialize(string data);
+
     TreeNode* insert(TreeNode* node, int val);
     TreeNode* deleteNode(TreeNode* root, int val);
     TreeNode* search(TreeNode* root, int val);
+
+    TreeNode* insertNode(TreeNode* root, TreeNode* node);
     
 private:
     vector<int> preorder;
@@ -1035,19 +1038,35 @@ TreeNode* Solution::search(TreeNode* root, int val)
 }
 
 // A utility function to insert a new node with given key in BST
-TreeNode* Solution::insert(TreeNode* node, int val)
+
+TreeNode* Solution::insertNode(TreeNode* root, TreeNode* node) 
+{
+
+    if (root == NULL)
+    {
+        root = node;
+        return root;
+    }
+    
+    if (node->val < root->val)
+        root->left  = insertNode(root->left, node);
+    else
+        root->right = insertNode(root->right, node);
+    
+    return root;
+}
+
+TreeNode* Solution::insert(TreeNode* root, int val)
 {
     // If the tree is empty, return a new node
-    if (node == NULL) return new TreeNode(val);
+    if (root == NULL) return new TreeNode(val);
     
     // Otherwise, recur down the tree
-    if (val < node->val)
-        node->left  = insert(node->left, val);
+    if (val < root->val)
+        root->left  = insert(root->left, val);
     else
-        node->right = insert(node->right, val);
-    
-    // return the (unchanged) node pointer
-    return node;
+        root->right = insert(root->right, val);
+    return root;
 }
 
 TreeNode* Solution::deleteNode(TreeNode* root, int val)
@@ -1128,20 +1147,25 @@ int main()
     /  \    /  \                     \    /  \
     20   40  60   80                   40  60   80
 */
+    
     Solution solution;
     string str = "{50,30,70,20,40,60,80}";
     TreeNode* root = solution.deserialize(str);
-    
+
     cout << solution.isValidBST(root) << endl;
     cout << solution.serialize(root) << endl;
-    
+
     solution.deleteNode(root, 20);
     cout << solution.serialize(root) << endl;
     solution.deleteNode(root, 30);
     cout << solution.serialize(root) << endl;
-    solution.insert(root, 20);
-    cout << solution.serialize(root) << endl;
     
+    //solution.insert(root, 20);
+    TreeNode* node = new TreeNode(20);
+
+    solution.insertNode(root, node);
+    cout << solution.serialize(root) << endl;
+
     return 0;
 }
 
