@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VariablesViewState
+   version = "1.0">
+   <ContextStates>
+      <ContextState
+         contextName = "Solution::fibonacci(int):main.cpp">
+         <PersistentStrings>
+            <PersistentString
+               value = "umap">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "SinglyLinkedList::removeNode(LinkedListNode*):main.cpp">
+         <PersistentStrings>
+            <PersistentString
+               value = "tail">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "Solution::add(std::__1::vector&lt;int, std::__1::allocator&lt;int&gt; &gt;&amp;, int):main.cpp">
+      </ContextState>
+      <ContextState
+         contextName = "SinglyLinkedList::removeAfter(LinkedListNode*):main.cpp">
+      </ContextState>
+      <ContextState
+         contextName = "swap(int*, int*):main.cpp">
+         <PersistentStrings>
+            <PersistentString
+               value = "pA">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "SinglyLinkedList::searchGreaterThanX_NodePre(int):main.cpp">
+      </ContextState>
+      <ContextState
+         contextName = "main:main.cpp">
+      </ContextState>
+      <ContextState
+         contextName = "SinglyLinkedList::removeHead():main.cpp">
+      </ContextState>
+      <ContextState
+         contextName = "SinglyLinkedList::insertFirst(LinkedListNode*):main.cpp">
+      </ContextState>
+   </ContextStates>
+</VariablesViewState>
