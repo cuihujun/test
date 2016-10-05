@@ -46,6 +46,7 @@ public:
     void removeTail();
     void removeAfter(LinkedListNode *preNode);
     void removeNode(LinkedListNode *node);
+    void removeNodesEqualto(int x);
     
     bool checkHeadValueEqualTo(int val);
     LinkedListNode* searchNodeByVal_ReturnCurrNode(int val);
@@ -236,6 +237,7 @@ void SinglyLinkedList::removeNode(LinkedListNode *currNode)
     }
     else
     {
+        // copy NEXT NODE values to CURRENT NODE and delete NEXT NODE
         LinkedListNode* next = currNode->next;
         currNode->val = next->val;
         currNode->next = next->next;
@@ -279,6 +281,48 @@ void SinglyLinkedList::removeAfter(LinkedListNode *preNode)
             cerr << "[Error][removeAfter] preNode->next is NULL" << endl;
         }
     }
+}
+
+/*
+ SinglyLinkedList* list = new SinglyLinkedList();
+ 
+ vector<int> item = {1,4,3,4,4,3,6,7,4,4};
+ 
+ int _list_item;
+ int _list_i;
+ 
+ for(_list_i=0; _list_i<item.size(); _list_i++)
+ {
+ _list_item = item[_list_i];
+ LinkedListNode* newNode = new LinkedListNode(_list_item);
+ list->insertTail(newNode);
+ }
+ 
+ list->printList(); // OUTPUT: 1 4 3 4 4 3 6 7 4 4
+ 
+ list->removeNodesEqualto(4);
+ 
+ list->printList(); // OUTPUT: 1 3 3 6 7 
+
+ */
+void SinglyLinkedList::removeNodesEqualto(int x)
+{
+    LinkedListNode* temp = head;
+    
+    if(head->val == x)
+    {
+        removeHead();
+    }
+    
+    while(temp!=NULL)
+    {
+        if(temp->val == x) // x 같은 숫자 연속으로 있을때 보안하기위함
+            removeNode(temp);
+        if(temp->next && temp->next->val == x)
+            removeAfter(temp);
+        temp = temp->next;
+    }
+    
 }
 
 #pragma mark - K-Group Reverse NODE FUNCTIONS
@@ -427,6 +471,24 @@ LinkedListNode* SinglyLinkedList::searchNodeByVal_ReturnPreNode(int val)
     return NULL;
 }
 
+/*
+ SinglyLinkedList* list = new SinglyLinkedList();
+ 
+ vector<int> item = {1,4,3,4,3,6,7,4,4};
+ 
+ int _list_item;
+ int _list_i;
+ 
+ for(_list_i=0; _list_i<item.size(); _list_i++)
+ {
+    _list_item = item[_list_i];
+    LinkedListNode* newNode = new LinkedListNode(_list_item);
+    list->insertTail(newNode);
+ }
+ 
+ list->printList();
+ vector<LinkedListNode*> preNodes = list->searchNodesByVal_ReturnVecPreNodes(4);
+ */
 vector<LinkedListNode*> SinglyLinkedList::searchNodesByVal_ReturnVecPreNodes(int x)
 {
     vector<LinkedListNode*> res = {};
@@ -467,7 +529,7 @@ int main()
     
     SinglyLinkedList* list = new SinglyLinkedList();
     
-    vector<int> item = {1,2,3,4,5,6,7,8,9};
+    vector<int> item = {1,4,3,4,4,3,6,7,4,4};
     
     int _list_item;
     int _list_i;
@@ -480,7 +542,9 @@ int main()
     }
     
     list->printList();
-    LinkedListNode* head = list->reverseKGroup(list->getHead(), 3);
+    
+    list->removeNodesEqualto(4);
+
     list->printList();
     
     return 0 ;

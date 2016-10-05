@@ -73,22 +73,34 @@ int main(void)
     struct node* head = NULL;
   
      /* Created Linked list is 1->2->3->4->5->6->7->8->9 */
-     push(&head, 9);
-     push(&head, 8);
-     push(&head, 7);
-     push(&head, 6);
-     push(&head, 5);
-     push(&head, 4);
-     push(&head, 3);
-     push(&head, 2);
-     push(&head, 1);           
+    push(&head, 9);
+    push(&head, 8);
+    push(&head, 7);
+    push(&head, 6);
+    push(&head, 5);
+    push(&head, 4);
+    push(&head, 3);
+    push(&head, 2);
+    push(&head, 1);           
  
-     printf("\nGiven linked list \n");
-     printList(head);
-     head = reverse(head, 3);
+    printf("\nGiven linked list \n");
+    printList(head);
+    head = reverse(head, 3);
  
-     printf("\nReversed Linked list \n");
-     printList(head);
+    printf("\nReversed Linked list \n");
+    printList(head);
  
-     return(0);
+    return(0);
 }
+
+
+
+
+
+
+
+
+
+
+
+
