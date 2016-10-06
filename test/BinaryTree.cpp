@@ -6,6 +6,8 @@
 #include <queue>
 #include <stack>
 #include <sstream>
+#include <iomanip>
+#include <list>
 
 using namespace std;
 template <typename T>
@@ -79,7 +81,8 @@ public:
      */
     bool isValidBST(TreeNode *root);
     bool isIdentical(TreeNode* a, TreeNode* b);
-
+    int maxDepth(TreeNode* node);
+    
     vector<int> binaryTreePathsSum(TreeNode* root);
     int leftLeavesSum(TreeNode *root);
     int rightLeavesSum(TreeNode *root);
@@ -88,12 +91,15 @@ public:
     
     string serialize(TreeNode *root);
     TreeNode* deserialize(string data);
-
-    TreeNode* insert(TreeNode* node, int val);
+    
+    TreeNode* insertNode(TreeNode* node, int val);
     TreeNode* deleteNode(TreeNode* root, int val);
-    TreeNode* search(TreeNode* root, int val);
-
+    TreeNode* searchBST(TreeNode* root, int val);
+    
     TreeNode* insertNode(TreeNode* root, TreeNode* node);
+    TreeNode* deleteNode(TreeNode* root, TreeNode* node);
+    
+    void displayBinaryTree(TreeNode* root);
     
 private:
     vector<int> preorder;
@@ -115,8 +121,8 @@ private:
 /*
  1)
  
-           1
-     2              3
+ 1
+ 2              3
  4       5      6         7
  
  TreeNode* root = new TreeNode(1);
@@ -134,17 +140,17 @@ private:
  0
  
  2)
-       50
-     /     \
-    30      70
-   /  \    /  \
+ 50
+ /     \
+ 30      70
+ /  \    /  \
  20   40  60   80
  
  Solution solution;
  string str = "{50,30,70,20,40,60,80}";
  TreeNode* root = solution.deserialize(str);
  cout << solution.isValidBST(root) << endl;
-
+ 
  OUTPUT:
  1
  */
@@ -203,7 +209,7 @@ bool Solution::isValidBST(TreeNode *root) // Public function
  TreeNode* newRoot = solution.deserialize(str);
  
  cout << solution.isIdentical(root, newRoot) << endl;;
-
+ 
  OUTPUT:
  1
  */
@@ -223,12 +229,18 @@ bool Solution::isIdentical(TreeNode* a, TreeNode* b)
     }
 }
 
+int Solution::maxDepth(TreeNode* node)
+{
+    if (!node) return 0;
+    return 1 + std::max(maxDepth(node->left), maxDepth(node->right));
+}
+
 #pragma mark - In-Order Traversal
 /********************************************************
  In-Order Traversal
  
-            1
-    2              3
+ 1
+ 2              3
  4      5      6         7
  
  TreeNode* root = new TreeNode(1);
@@ -244,8 +256,8 @@ bool Solution::isIdentical(TreeNode* a, TreeNode* b)
  
  OUTPUT:
  [4 2 5 1 6 3 7 ]
-*/
-void Solution::inorderTraverse(TreeNode *root)
+ */
+void Solution::inorderTraverse(TreeNode *root) //Private
 {
     if (root == NULL)
     {
@@ -257,7 +269,7 @@ void Solution::inorderTraverse(TreeNode *root)
     inorderTraverse(root->right);
 }
 
-vector<int> Solution::inorderTraversal(TreeNode *root)
+vector<int> Solution::inorderTraversal(TreeNode *root) //Public
 {
     inorder.clear();
     inorderTraverse(root);
@@ -267,8 +279,8 @@ vector<int> Solution::inorderTraversal(TreeNode *root)
 #pragma mark - Pre-Order Traversal
 /********************************************************
  Pre-Order Traversal
-            1
-     2              3
+ 1
+ 2              3
  4      5      6         7
  
  TreeNode* root = new TreeNode(1);
@@ -280,10 +292,10 @@ vector<int> Solution::inorderTraversal(TreeNode *root)
  root->right->right = new TreeNode(7);
  
  Solution solution;
- cout << solution.preorderTraversal(root) << endl; 
+ cout << solution.preorderTraversal(root) << endl;
  
  OUTPUT: [1 2 4 5 3 6 7]
-*/
+ */
 void Solution::preorderTraverse(TreeNode *root)
 {
     if (root == NULL)
@@ -308,8 +320,8 @@ vector<int> Solution::preorderTraversal(TreeNode *root)
 /********************************************************
  Post-Order Traversal
  
-             1
-     2              3
+ 1
+ 2              3
  4       5      6         7
  
  TreeNode* root = new TreeNode(1);
@@ -322,26 +334,26 @@ vector<int> Solution::preorderTraversal(TreeNode *root)
  
  Solution solution;
  cout << solution.preorderTraversal(root) << endl;
-
+ 
  OUTPUT: [4 5 2 6 7 3 1 ]
-*/
+ */
 vector<int> Solution::postorderTraversal(TreeNode *root)
 {
     vector<int> result;
-    stack<TreeNode *> myStack;
+    stack<TreeNode *> nodeStack;
     
     TreeNode *current = root, *lastVisited = NULL;
-    while (current != NULL || !myStack.empty())
+    while (current != NULL || !nodeStack.empty())
     {
         while (current != NULL)
         {
-            myStack.push(current);
+            nodeStack.push(current);
             current = current->left;
         }
-        current = myStack.top();
+        current = nodeStack.top();
         if (current->right == NULL || current->right == lastVisited)
         {
-            myStack.pop();
+            nodeStack.pop();
             result.push_back(current->val);
             lastVisited = current;
             current = NULL;
@@ -358,8 +370,8 @@ vector<int> Solution::postorderTraversal(TreeNode *root)
 /********************************************************
  Level-Order Traversal
  
-             1
-    2              3
+ 1
+ 2              3
  4       5      6         7
  
  TreeNode* root = new TreeNode(1);
@@ -374,7 +386,7 @@ vector<int> Solution::postorderTraversal(TreeNode *root)
  vector<vector<int>> levelOrderTraversal = solution.levelOrderTraversal(root);
  for(auto list : levelOrderTraversal)
  {
-    cout<<list<<endl;
+ cout<<list<<endl;
  }
  
  OUTPUT:
@@ -423,8 +435,8 @@ vector<vector<int>> Solution::levelOrderTraversal(TreeNode *root)
 /********************************************************
  Level-Order-Bottom Traversal
  
-            1
-     2              3
+ 1
+ 2              3
  4       5      6         7
  
  TreeNode* root = new TreeNode(1);
@@ -439,9 +451,9 @@ vector<vector<int>> Solution::levelOrderTraversal(TreeNode *root)
  vector<vector<int>> levelOrderBottomTraversal = solution.levelOrderBottomTraversal(root);
  for(auto list : levelOrderBottomTraversal)
  {
-     cout<<list<<endl;
+ cout<<list<<endl;
  }
-
+ 
  OUTPUT:
  [4 5 6 7 ]
  [2 3 ]
@@ -489,8 +501,8 @@ vector<vector<int>> Solution::levelOrderBottomTraversal(TreeNode *root)
 /********************************************************
  ZigZag Level Order Traversal
  
-            1
-    2              3
+ 1
+ 2              3
  4       5      6         7
  
  TreeNode* root = new TreeNode(1);
@@ -507,7 +519,7 @@ vector<vector<int>> Solution::levelOrderBottomTraversal(TreeNode *root)
  vector<int> res = {};
  for(auto list : zigzagLevelOrderTraversal)
  {
-    res.insert(res.end(), list.begin(), list.end());
+ res.insert(res.end(), list.begin(), list.end());
  }
  cout << res << endl;
  
@@ -563,8 +575,8 @@ vector<vector<int>> Solution::zigzagLevelOrderTraversal(TreeNode *root)
 /********************************************************
  Flatten Binary Tree to Linked List
  
-             1
-     2              3
+ 1
+ 2              3
  4       5      6         7
  
  TreeNode* root = new TreeNode(1);
@@ -574,27 +586,27 @@ vector<vector<int>> Solution::zigzagLevelOrderTraversal(TreeNode *root)
  root->left->right = new TreeNode(5);
  root->right->left = new TreeNode(6);
  root->right->right = new TreeNode(7);
-
+ 
  Solution solution;
  solution.flattenBinaryTreeToLinkedList(root);
  
  1
-    2
-        4
-            5
-                3
-                    6
-                        7
+ 2
+ 4
+ 5
+ 3
+ 6
+ 7
  
  vector<string> binaryTreePaths = solution.binaryTreePaths(root);
  for(auto list : binaryTreePaths)
  {
-    cout<<list<<endl;
+ cout<<list<<endl;
  }
  OUTPUT:
  1->R2->R4->R5->R3->R6->R7
  
-*/
+ */
 void Solution::flattenBinaryTreeToLinkedList(TreeNode *root)
 {
     if (root == NULL) return;
@@ -616,8 +628,8 @@ void Solution::flattenBinaryTreeToLinkedList(TreeNode *root)
 #pragma mark - Binary Tree Paths
 /********************************************************
  Binary Tree Paths
-            1
-     2              3
+ 1
+ 2              3
  4       5      6         7
  
  TreeNode* root = new TreeNode(1);
@@ -632,9 +644,9 @@ void Solution::flattenBinaryTreeToLinkedList(TreeNode *root)
  vector<string> binaryTreePaths = solution.binaryTreePaths(root);
  for(auto list : binaryTreePaths)
  {
-    cout<<list<<endl;
+ cout<<list<<endl;
  }
-
+ 
  OUTPUT:
  1->L2->L4
  1->L2->R5
@@ -675,8 +687,8 @@ vector<string> Solution::binaryTreePaths(TreeNode* root) //Public Function
 #pragma mark - Binary Tree Sums
 /********************************************************
  Binary Tree Paths Sum
-             1
-     2              3
+ 1
+ 2              3
  4       5      6         7
  
  TreeNode* root = new TreeNode(1);
@@ -691,7 +703,7 @@ vector<string> Solution::binaryTreePaths(TreeNode* root) //Public Function
  vector<int> sums = solution.binaryTreePathsSum(root);
  for(auto sum : sums)
  {
-    cout<<sum<<endl;
+ cout<<sum<<endl;
  }
  
  OUTPUT:
@@ -745,8 +757,8 @@ bool Solution::isLeaf(TreeNode *node)  //Private Function
     return false;
 }
 /*
-             1
-     2              3
+ 1
+ 2              3
  4       5      6         7
  TreeNode* root = new TreeNode(1);
  root->left = new TreeNode(2);
@@ -755,7 +767,7 @@ bool Solution::isLeaf(TreeNode *node)  //Private Function
  root->left->right = new TreeNode(5);
  root->right->left = new TreeNode(6);
  root->right->right = new TreeNode(7);
-
+ 
  Solution solution;
  int leftSum = leftLeavesSum(root);
  cout << leftSum << endl; // OUTPUT: 10
@@ -764,7 +776,7 @@ bool Solution::isLeaf(TreeNode *node)  //Private Function
  cout << rightSum << endl; // OUTPUT 12
  
  cout << solution.totalleaveSum(root) <<endl;  // OUTPUT 22
-*/
+ */
 
 int Solution::leftLeavesSum(TreeNode *root)
 {
@@ -806,7 +818,7 @@ int Solution::rightLeavesSum(TreeNode *root)
 int Solution::totalleaveSum(TreeNode* root)
 {
     int sum = 0;
-
+    
     if(root == NULL)
         return sum;
     
@@ -856,7 +868,7 @@ vector<int> Solution::levelSums(TreeNode *root)
  
  OUTPUT:
  {1,2,3,4,5,6,7}
-*/
+ */
 vector<string> Solution::split(const string &str, string delim)
 {
     vector<string> results;
@@ -925,7 +937,7 @@ string Solution::serialize(TreeNode *root)
  vector<string> binaryTreePaths = solution.binaryTreePaths(newRoot);
  for(auto list : binaryTreePaths)
  {
-    cout<<list<<endl;
+ cout<<list<<endl;
  }
  
  OUTPUT:
@@ -975,21 +987,15 @@ TreeNode* Solution::deserialize(string data)
 
 #pragma mark - Search/Insert/Delete BST
 
+
 /*
- 1)
-       50                             50
-    /     \         delete(20)      /   \
-   30      70       --------->    30     70
-  /  \    /  \                     \    /  \
+ 50                            50
+ /     \         delete(20)      /   \
+ 30      70       --------->    30     70
+ /  \    /  \                     \    /  \
  20   40  60   80                   40  60   80
  
- 2)
-        50                            50
-     /     \         delete(30)      /   \
-    30      70       --------->    40     70
-      \    /  \                          /  \
-      40  60   80                       60   80
- 
+
  Solution solution;
  string str = "{50,30,70,20,40,60,80}";
  TreeNode* root = solution.deserialize(str);
@@ -1001,17 +1007,23 @@ TreeNode* Solution::deserialize(string data)
  cout << solution.serialize(root) << endl;
  solution.deleteNode(root, 30);
  cout << solution.serialize(root) << endl;
- solution.insert(root, 20);
+
+ //solution.insert(root, 20);
+ TreeNode* node = new TreeNode(20);
+
+ solution.insertNode(root, node);
  cout << solution.serialize(root) << endl;
- 
+ solution.deleteNode(root, node);
+ cout << solution.serialize(root) << endl;
+
  OUTPUT:
  1
  {50,30,70,20,40,60,80}
  {50,30,70,#,40,60,80}
  {50,40,70,#,#,60,80}
  {50,40,70,20,#,60,80}
- 
-*/
+ {50,40,70,#,#,60,80}
+ */
 TreeNode* Solution::minValueNode(TreeNode* node)
 {
     TreeNode* current = node;
@@ -1023,7 +1035,7 @@ TreeNode* Solution::minValueNode(TreeNode* node)
     return current;
 }
 
-TreeNode* Solution::search(TreeNode* root, int val)
+TreeNode* Solution::searchBST(TreeNode* root, int val)
 {
     // Base Cases: root is null or key is present at root
     if (root == NULL || root->val == val)
@@ -1031,17 +1043,28 @@ TreeNode* Solution::search(TreeNode* root, int val)
     
     // Key is greater than root's key
     if (root->val < val)
-        return search(root->right, val);
+        return searchBST(root->right, val);
     
     // Key is smaller than root's key
-    return search(root->left, val);
+    return searchBST(root->left, val);
 }
 
-// A utility function to insert a new node with given key in BST
-
-TreeNode* Solution::insertNode(TreeNode* root, TreeNode* node) 
+TreeNode* Solution::insertNode(TreeNode* root, int val)
 {
+    // If the tree is empty, return a new node
+    if (root == NULL) return new TreeNode(val);
+    
+    // Otherwise, recur down the tree
+    if (val < root->val)
+        root->left  = insertNode(root->left, val);
+    else
+        root->right = insertNode(root->right, val);
+    return root;
+}
 
+TreeNode* Solution::insertNode(TreeNode* root, TreeNode* node)
+{
+    
     if (root == NULL)
     {
         root = node;
@@ -1053,19 +1076,6 @@ TreeNode* Solution::insertNode(TreeNode* root, TreeNode* node)
     else
         root->right = insertNode(root->right, node);
     
-    return root;
-}
-
-TreeNode* Solution::insert(TreeNode* root, int val)
-{
-    // If the tree is empty, return a new node
-    if (root == NULL) return new TreeNode(val);
-    
-    // Otherwise, recur down the tree
-    if (val < root->val)
-        root->left  = insert(root->left, val);
-    else
-        root->right = insert(root->right, val);
     return root;
 }
 
@@ -1111,6 +1121,123 @@ TreeNode* Solution::deleteNode(TreeNode* root, int val)
     return root;
 }
 
+TreeNode* Solution::deleteNode(TreeNode* root, TreeNode* node)
+{
+    // base case
+    if (root == NULL) return root;
+    
+    // If the key to be deleted is smaller than the root's key, then it lies in left subtree
+    if (node->val < root->val)
+        root->left = deleteNode(root->left, node->val);
+    
+    // If the key to be deleted is greater than the root's key, then it lies in right subtree
+    else if (node->val > root->val)
+        root->right = deleteNode(root->right, node->val);
+    
+    // if key is same as root's key, then This is the node to be deleted
+    else
+    {
+        // node with only one child or no child
+        if (root->left == NULL)
+        {
+            TreeNode *temp = root->right;
+            delete root;
+            return temp;
+        }
+        else if (root->right == NULL)
+        {
+            TreeNode *temp = root->left;
+            delete root;
+            return temp;
+        }
+        
+        // node with two children: Get the inorder successor (smallest in the right subtree)
+        TreeNode* temp = minValueNode(root->right);
+        
+        // Copy the inorder successor's content to this node
+        root->val = temp->val;
+        
+        // Delete the inorder successor
+        root->right = deleteNode(root->right, temp->val);
+    }
+    return root;
+}
+
+/* displayBinaryTree
+ 
+        50
+     /     \
+    30      70
+   /  \    /  \
+ 20   40  60   80
+ 
+ Solution solution;
+ string str = "{50,30,70,20,40,60,80}";
+ TreeNode* root = solution.deserialize(str);
+ 
+ solution.displayBinaryTree(root, 0);(root, 0);
+ 
+ */
+void Solution::displayBinaryTree(TreeNode* root)
+{
+#if 0
+    if (root != nullptr)
+    {
+        displayBinaryTree(root->right, indent + 4);
+        if (indent > 0)
+            cout << setw(indent) << " ";
+        cout << root->val << endl;
+        displayBinaryTree(root->left, indent + 4);
+    }
+#else
+    struct NodeDepth
+    {
+        TreeNode* node;
+        int level;
+        NodeDepth(TreeNode* _n, int _lvl) : node(_n), level(_lvl) {}
+    };
+    
+    int depth = maxDepth(root);
+    
+    char buf[1024];
+    int last_level = 0;
+    int offset = (1 << depth) - 1;
+    
+    // using a queue means we perform a breadth first iteration through the tree
+    std::list<NodeDepth> nodeQueue;
+    
+    nodeQueue.push_back(NodeDepth(root, last_level));
+    while (nodeQueue.size())
+    {
+        const NodeDepth& nodeDepth = *nodeQueue.begin();
+        
+        // moving to a new level in the tree, output a new line and calculate new offset
+        if (last_level != nodeDepth.level)
+        {
+            std::cout << "\n";
+            
+            last_level = nodeDepth.level;
+            offset = (1 << (depth - nodeDepth.level)) - 1;
+        }
+        
+        // output <offset><data><offset>
+        if (nodeDepth.node)
+            sprintf(buf, " %*s%d%*s", offset, " ", nodeDepth.node->val, offset, " ");
+        else
+            sprintf(buf, " %*s", offset << 1, " ");
+        std::cout << buf;
+        
+        if (nodeDepth.node)
+        {
+            nodeQueue.push_back(NodeDepth(nodeDepth.node->left, last_level + 1));
+            nodeQueue.push_back(NodeDepth(nodeDepth.node->right, last_level + 1));
+        }
+        
+        nodeQueue.pop_front();
+    }
+    std::cout << "\n";
+#endif
+}
 
 #pragma mark - Others
 /* This function counts the number of nodes in a binary tree */
@@ -1140,32 +1267,21 @@ bool isComplete (TreeNode* root, unsigned int index, unsigned int number_nodes)
 #pragma mark - Main Function
 int main()
 {
-/*
-    50                            50
-    /     \         delete(20)      /   \
-    30      70       --------->    30     70
-    /  \    /  \                     \    /  \
+    /*
+          50                            50
+        /     \         delete(20)      /   \
+      30      70       --------->    30     70
+     /  \    /  \                     \    /  \
     20   40  60   80                   40  60   80
-*/
+     */
     
     Solution solution;
     string str = "{50,30,70,20,40,60,80}";
     TreeNode* root = solution.deserialize(str);
+ 
+    solution.displayBinaryTree(root);
 
-    cout << solution.isValidBST(root) << endl;
-    cout << solution.serialize(root) << endl;
-
-    solution.deleteNode(root, 20);
-    cout << solution.serialize(root) << endl;
-    solution.deleteNode(root, 30);
-    cout << solution.serialize(root) << endl;
     
-    //solution.insert(root, 20);
-    TreeNode* node = new TreeNode(20);
-
-    solution.insertNode(root, node);
-    cout << solution.serialize(root) << endl;
-
     return 0;
 }
 
