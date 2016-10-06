@@ -101,6 +101,7 @@ public:
     
     void displayBinaryTree(TreeNode* root);
     
+    void invertBinaryTree(TreeNode *node);
 private:
     vector<int> preorder;
     vector<int> inorder;
@@ -1178,18 +1179,31 @@ TreeNode* Solution::deleteNode(TreeNode* root, TreeNode* node)
  solution.displayBinaryTree(root, 0);(root, 0);
  
  */
-void Solution::displayBinaryTree(TreeNode* root)
+
+
+
+void displayTree(TreeNode* root, int indent)
 {
-#if 0
     if (root != nullptr)
     {
-        displayBinaryTree(root->right, indent + 4);
-        if (indent > 0)
-            cout << setw(indent) << " ";
+        displayTree(root->right, indent + 4);
+        for(int i = 0; i < indent; i++ )
+            cout <<' ';
         cout << root->val << endl;
-        displayBinaryTree(root->left, indent + 4);
+        displayTree(root->left, indent + 4);
+    }
+}
+
+void Solution::displayBinaryTree(TreeNode* root)
+{
+#if 1
+    if (root != nullptr)
+    {
+        int indent = 0;
+        displayTree(root->right, indent);
     }
 #else
+
     struct NodeDepth
     {
         TreeNode* node;
@@ -1222,9 +1236,9 @@ void Solution::displayBinaryTree(TreeNode* root)
         
         // output <offset><data><offset>
         if (nodeDepth.node)
-            sprintf(buf, " %*s%d%*s", offset, " ", nodeDepth.node->val, offset, " ");
+            snprintf(buf,sizeof(buf)-1, " %*s%d%*s", offset, " ", nodeDepth.node->val, offset, " ");
         else
-            sprintf(buf, " %*s", offset << 1, " ");
+            snprintf(buf, sizeof(buf)-1, " %*s",  offset << 1, " ");
         std::cout << buf;
         
         if (nodeDepth.node)
@@ -1236,7 +1250,28 @@ void Solution::displayBinaryTree(TreeNode* root)
         nodeQueue.pop_front();
     }
     std::cout << "\n";
+
 #endif
+}
+
+/*
+ Solution solution;
+ string str = "{50,30,70,20,40,60,80}";
+ TreeNode* root = solution.deserialize(str);
+ 
+ solution.displayBinaryTree(root);
+ solution.invertBinaryTree(root);
+ solution.displayBinaryTree(root);
+ */
+void Solution::invertBinaryTree(TreeNode *node)
+{
+    TreeNode* left = node->left;
+    TreeNode* right = node->right;
+    
+    node->left = right;
+    node->right = left;
+    if (left!=NULL) invertBinaryTree(left);
+    if (right!=NULL) invertBinaryTree(right);
 }
 
 #pragma mark - Others
@@ -1264,23 +1299,58 @@ bool isComplete (TreeNode* root, unsigned int index, unsigned int number_nodes)
     return (isComplete(root->left, 2*index + 1, number_nodes) && isComplete(root->right, 2*index + 2, number_nodes));
 }
 
+int depth(TreeNode *root)
+{
+    if (root == NULL)
+    {
+        return 0;
+    }
+    int left = depth(root->left);
+    int right = depth(root->right);
+    if (left == -1 || right == -1 || abs(left - right) > 1)
+    {
+        return -1;
+    }
+    return max(left, right) + 1;
+}
+
+bool isBalanced(TreeNode *root)
+{
+    return depth(root) != -1;
+}
+
 #pragma mark - Main Function
 int main()
 {
-    /*
-          50                            50
-        /     \         delete(20)      /   \
-      30      70       --------->    30     70
-     /  \    /  \                     \    /  \
-    20   40  60   80                   40  60   80
-     */
-    
+
+
     Solution solution;
+    
     string str = "{50,30,70,20,40,60,80}";
     TreeNode* root = solution.deserialize(str);
- 
+    
+    vector<int> nums = {23,41,51,60,73,31,94,55,66,2,4,3,90};
+    sort(nums.begin(), nums.end());
+    
+    for(auto num : nums)
+    {
+        solution.insertNode(root, num);
+    }
+    cout << solution.binaryTreePaths(root) << endl;
+    
     solution.displayBinaryTree(root);
-
+    
+    
+//    Solution solution;
+//    string str = "{50,30,70,20,40,60,80}";
+//    TreeNode* root = solution.deserialize(str);
+// 
+//    solution.displayBinaryTree(root);
+//    solution.invertBinaryTree(root);
+//    solution.displayBinaryTree(root);
+    
+    
+    
     
     return 0;
 }
