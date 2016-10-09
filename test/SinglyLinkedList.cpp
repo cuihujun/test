@@ -26,6 +26,11 @@ public:
         this->val = node_value;
         this->next = NULL;
     }
+    LinkedListNode(int node_value, LinkedListNode* node_next)
+    {
+        this->val = node_value;
+        this->next = node_next;
+    }
 };
 
 class SinglyLinkedList
@@ -53,13 +58,18 @@ public:
     LinkedListNode* searchNodeByVal_ReturnPreNode(int val);
     vector<LinkedListNode*> searchNodesByVal_ReturnVecPreNodes(int x);
     LinkedListNode* searchNode_ReturnPreNode(LinkedListNode* node);
+    
+    LinkedListNode* reverseBetween(LinkedListNode *head, int m, int n);
+    LinkedListNode* reverseLinkedList(LinkedListNode* head);
     LinkedListNode* reverseKGroup(LinkedListNode *head, int k);
     
     // NOTE: Print the Node;
     void printList();
+    void printList(LinkedListNode* node);
     
 private:
-    LinkedListNode* reverse(LinkedListNode *p1, LinkedListNode *p2);
+    LinkedListNode* reverseKG(LinkedListNode *p1, LinkedListNode *p2);
+    LinkedListNode* findkth(LinkedListNode *head, int k);
     
     LinkedListNode* head;
     LinkedListNode* tail;
@@ -325,6 +335,90 @@ void SinglyLinkedList::removeNodesEqualto(int x)
     
 }
 
+#pragma mark - Reverse Between NODEs FUNCTIONS
+
+/*
+ SinglyLinkedList* list = new SinglyLinkedList();
+ 
+ vector<int> item = {1,2,3,4,5,6,7,8,9};
+ 
+ int _list_item;
+ int _list_i;
+ 
+ for(_list_i=0; _list_i<item.size(); _list_i++)
+ {
+ _list_item = item[_list_i];
+ LinkedListNode* newNode = new LinkedListNode(_list_item);
+ list->insertTail(newNode);
+ }
+ 
+ list->printList();  // OUTPUT: 1 2 3 4 5 6 7 8 9
+ LinkedListNode* head = list->reverseBetween(list->getHead(), 2, 4);
+ list->printList(head);  // OUTPUT: 1 4 3 2 5 6 7 8 9
+ */
+
+LinkedListNode* SinglyLinkedList::findkth(LinkedListNode *head, int k)
+{
+    for (int i = 0; i < k; i++) {
+        if (head == NULL) {
+            return NULL;
+        }
+        head = head->next;
+    }
+    return head;
+}
+
+LinkedListNode* SinglyLinkedList::reverseBetween(LinkedListNode *head, int m, int n)
+{
+    LinkedListNode *dummy = new LinkedListNode(-1, head);
+    LinkedListNode *mth_prev = findkth(dummy, m - 1);
+    LinkedListNode *mth = mth_prev->next;
+    LinkedListNode *nth = findkth(dummy, n);
+    LinkedListNode *nth_next = nth->next;
+    nth->next = NULL;
+    
+    reverseLinkedList(mth);
+    mth_prev->next = nth;
+    mth->next = nth_next;
+    return dummy->next;
+}
+
+#pragma mark - Reverse NODE FUNCTIONS
+
+
+/*
+ SinglyLinkedList* list = new SinglyLinkedList();
+ 
+ vector<int> item = {1,2,3,4,5,6,7,8,9};
+ 
+ int _list_item;
+ int _list_i;
+ 
+ for(_list_i=0; _list_i<item.size(); _list_i++)
+ {
+ _list_item = item[_list_i];
+ LinkedListNode* newNode = new LinkedListNode(_list_item);
+ list->insertTail(newNode);
+ }
+ 
+ list->printList();  // OUTPUT: 1 2 3 4 5 6 7 8 9
+ LinkedListNode* head = list->reverseLinkedList(list->getHead());
+ list->printList(head);  // OUTPUT: 9 8 7 6 5 4 3 2 1
+ */
+
+LinkedListNode* SinglyLinkedList::reverseLinkedList(LinkedListNode* head)
+{
+    LinkedListNode* prev = NULL;
+    while (head != NULL)
+    {
+        LinkedListNode *temp = head->next;
+        head->next = prev;
+        prev = head;
+        head = temp;
+    }
+    return prev;
+}
+
 #pragma mark - K-Group Reverse NODE FUNCTIONS
 
 /*
@@ -348,7 +442,7 @@ void SinglyLinkedList::removeNodesEqualto(int x)
  list->printList();  // OUTPUT: 3 2 1 6 5 4 9 8 7
  
  */
-LinkedListNode* SinglyLinkedList::reverse(LinkedListNode *p1, LinkedListNode *p2)
+LinkedListNode* SinglyLinkedList::reverseKG(LinkedListNode *p1, LinkedListNode *p2) //Private Function
 {
     LinkedListNode *p1next = p1->next;
     LinkedListNode *p2next = p2->next;
@@ -366,7 +460,7 @@ LinkedListNode* SinglyLinkedList::reverse(LinkedListNode *p1, LinkedListNode *p2
     return p1next;
 }
 
-LinkedListNode* SinglyLinkedList::reverseKGroup(LinkedListNode* head, int k)
+LinkedListNode* SinglyLinkedList::reverseKGroup(LinkedListNode* head, int k) // Public Function
 {
     if (k == 1)
     {
@@ -393,7 +487,7 @@ LinkedListNode* SinglyLinkedList::reverseKGroup(LinkedListNode* head, int k)
     
     while (p2 != NULL)
     {
-        p2 = reverse(p1, p2);
+        p2 = reverseKG(p1, p2);
         for (int i = 0; i < k; i++)
         {
             if (p2 == NULL)
@@ -523,13 +617,26 @@ void SinglyLinkedList::printList()
     cout <<endl;
 }
 
+void SinglyLinkedList::printList(LinkedListNode* node)
+{
+    LinkedListNode* temp=node;
+    
+    cout <<"PRINT OUT THE NODE VALUES"<<endl;
+    while(temp!=NULL)
+    {
+        cout << temp->val << " ";
+        temp = temp->next;
+    }
+    cout <<endl;
+}
+
 #pragma mark - MAIN FUNCTION
 int main()
 {
     
     SinglyLinkedList* list = new SinglyLinkedList();
     
-    vector<int> item = {1,4,3,4,4,3,6,7,4,4};
+    vector<int> item = {1,2,3,4,5,6,7,8,9};
     
     int _list_item;
     int _list_i;
@@ -541,11 +648,9 @@ int main()
         list->insertTail(newNode);
     }
     
-    list->printList(); // OUTPUT: 1 4 3 4 4 3 6 7 4 4
-    
-    list->removeNodesEqualto(4);
-    
-    list->printList(); // OUTPUT: 1 3 3 6 7
+    list->printList();  // OUTPUT: 1 2 3 4 5 6 7 8 9
+    LinkedListNode* head = list->reverseBetween(list->getHead(), 2, 4);
+    list->printList(head);  // OUTPUT: 1 4 3 2 5 6 7 8 9
     
     return 0 ;
 }
