@@ -91,8 +91,9 @@ int main()
 	std::future<int> future_15 = std::async(std::launch::async, factorial_sf, sf); // send std::shared_future copy
 
 	promise11.set_value(6);
-	//x = future_12.get(); // get return value from future_2 
-	//cout << x << endl;
+	// x = future_12.get(); // get return value from future_2 
+	// cout << x << endl;
+
 
 	return 0;
 }
