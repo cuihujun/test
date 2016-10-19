@@ -8,6 +8,7 @@ using namespace std;
 
 std::deque<int> q;
 std::mutex mu;
+std::condition_variable cond;
 
 
 // push some data in to queue
@@ -20,6 +21,9 @@ void function_1()
 		std::unique_lock<std::mutex> locker(mu);
 		q.push_front(count);
 		locker.unlock();
+
+		// cond.notify_all(); // it will wakeup all the tread
+		cond.notify_one(); // Notify one waiting thread, if there is one
 
 		std::this_thread::sleep_for(chrono::seconds(1));
 		count --;
@@ -35,20 +39,17 @@ void function_2()
 	while(data!=1)
 	{
 		std::unique_lock<std::mutex> locker(mu);
-		if(!q.empty())
-		{
-			data = q.back();
-			q.pop_back();
-			locker.unlock();
+		
+		//cond.wait(locker); // spurious wake
+		cond.wait(locker, [](){
+			return !q.empty();
+		});
 
-			cout << "t2 got a value from t1: " << data << endl;
-		}
-		else
-		{
-			// here will check if queue empty and unlock and check it again
-			// here is busy looping !!!
-			locker.unlock();
-		}
+		data = q.back();
+		q.pop_back();
+		locker.unlock();
+
+		cout << "t2 got a value from t1: " << data << endl;
 	}
 }
 
