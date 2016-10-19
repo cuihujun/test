@@ -34,10 +34,40 @@ std::mutex mu;
  * Best solution: BUT NEVER return/pass to others. it need to be at the inside of shared_print function.
  */
 
+// class LogFile
+// {
+// private: 
+// 	std::mutex mu;
+// 	ofstream fstream;
+// public: 
+// 	LogFile()
+// 	{
+// 		fstream.open("log.txt");
+// 	}
+// 	~LogFile()
+// 	{
+// 		fstream.close();
+// 	}
+// 	void shared_print(string msg, int index)
+// 	{
+// 		std::lock_guard<std::mutex> guard(mu);
+// 		fstream << msg << index << endl;
+// 	}
+// };
+
+
+/*
+ * Multiple lock: avid dead lock
+ * 1) Prefer locking single mutex.
+ * 2) Avoid locking a mutex and then calling a user provided function
+ * 3) Use std::lock() to lock more than one mutex
+ * 4) Lock the mutex in the same order
+ */
 class LogFile
 {
 private: 
 	std::mutex mu;
+	std::mutex mu2;
 	ofstream fstream;
 public: 
 	LogFile()
@@ -48,12 +78,30 @@ public:
 	{
 		fstream.close();
 	}
+
+	/*
+	 * in the function shared_print() & shared_print2() 
+	 * the lock need to be in the same order 
+	 * guard(mu); 
+	 * guard2(mu2);
+	 */
 	void shared_print(string msg, int index)
 	{
-		std::lock_guard<std::mutex> guard(mu);
+		std::lock(mu, mu2);
+		std::lock_guard<std::mutex> guard(mu, std::adopt_lock);
+		std::lock_guard<std::mutex> guard2(mu2, std::adopt_lock);
+		fstream << msg << index << endl;
+	}
+	void shared_print2(string msg, int index)
+	{
+		std::lock(mu, mu2);
+		std::lock_guard<std::mutex> guard(mu, std::adopt_lock);
+		std::lock_guard<std::mutex> guard2(mu2, std::adopt_lock);
 		fstream << msg << index << endl;
 	}
 };
+
+
 
 void function_1(LogFile& log)
 {
@@ -70,7 +118,7 @@ int main()
 	
 	for(int i=0; i<100; ++i)
 	{
-		logFile.shared_print("From main: ", i);
+		logFile.shared_print2("From main: ", i);
 	}
 
 	t1.join();
