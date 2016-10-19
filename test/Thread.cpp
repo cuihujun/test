@@ -63,60 +63,96 @@ std::mutex mu;
  * 3) Use std::lock() to lock more than one mutex
  * 4) Lock the mutex in the same order
  */
+// class LogFile
+// {
+// private: 
+// 	std::mutex mu;
+// 	std::mutex mu2;
+// 	std::mutex mu3;
+// 	ofstream fstream;
+// public: 
+// 	LogFile()
+// 	{
+// 		fstream.open("log.txt");
+// 	}
+// 	~LogFile()
+// 	{
+// 		fstream.close();
+// 	}
+
+// 	/*
+// 	 * in the function shared_print() & shared_print2() 
+// 	 * the lock need to be in the same order 
+// 	 * guard(mu); 
+// 	 * guard2(mu2);
+// 	 */
+// 	void shared_print(string msg, int index)
+// 	{
+// 		std::lock(mu, mu2);
+// 		std::lock_guard<std::mutex> guard(mu, std::adopt_lock);
+// 		std::lock_guard<std::mutex> guard2(mu2, std::adopt_lock);
+// 		fstream << msg << index << endl;
+// 	}
+// 	void shared_print2(string msg, int index)
+// 	{
+// 		std::lock(mu, mu2);
+// 		std::lock_guard<std::mutex> guard(mu, std::adopt_lock);
+// 		std::lock_guard<std::mutex> guard2(mu2, std::adopt_lock);
+// 		fstream << msg << index << endl;
+// 	}
+// 	void shared_print3(string msg, int index)
+// 	{ 
+// 		std::unique_lock<std::mutex> guard(mu, std::defer_lock);
+
+// 		// here is not locked
+// 		cout << " this is not locked yet" << endl;
+
+// 		guard.lock(); 
+// 		fstream << msg << index << endl;
+// 		guard.unlock();
+
+// 		guard.lock(); 
+// 		cout << "lock and unlock can be used multiple time" << endl;
+// 		guard.unlock();
+
+// 		// unique_lock is more havy than lock_guard
+// 		// and here you can move the ownership to the other.
+// 		std::unique_lock<std::mutex> guard2 = std::move(guard);
+
+// 	}
+// };
+
 class LogFile
 {
-private: 
+private:
 	std::mutex mu;
-	std::mutex mu2;
-	std::mutex mu3;
+	std::once_flag flag;
 	ofstream fstream;
-public: 
-	LogFile()
-	{
-		fstream.open("log.txt");
-	}
-	~LogFile()
-	{
-		fstream.close();
-	}
+public:
 
-	/*
-	 * in the function shared_print() & shared_print2() 
-	 * the lock need to be in the same order 
-	 * guard(mu); 
-	 * guard2(mu2);
-	 */
+	LogFile(){};
+	~LogFile(){}
 	void shared_print(string msg, int index)
 	{
-		std::lock(mu, mu2);
-		std::lock_guard<std::mutex> guard(mu, std::adopt_lock);
-		std::lock_guard<std::mutex> guard2(mu2, std::adopt_lock);
-		fstream << msg << index << endl;
-	}
-	void shared_print2(string msg, int index)
-	{
-		std::lock(mu, mu2);
-		std::lock_guard<std::mutex> guard(mu, std::adopt_lock);
-		std::lock_guard<std::mutex> guard2(mu2, std::adopt_lock);
-		fstream << msg << index << endl;
-	}
-	void shared_print3(string msg, int index)
-	{ 
-		std::unique_lock<std::mutex> guard(mu, std::defer_lock);
-
-		// here is not locked
-		cout << " this is not locked yet" << endl;
-
-		guard.lock(); 
-		fstream << msg << index << endl;
-		guard.unlock();
-
-		guard.lock(); 
-		cout << "lock and unlock can be used multiple time" << endl;
-		guard.unlock();
+		/*
+		 * here the program will be locked everytime you checked
+		 * it is waisting computer resource.
+		 */
+		// {
+		// 	std::unique_lock<std::mutex> guard(mu);
+		// 	if(!fstream.is_open())
+		// 	{
+		// 		fstream.open("log.txt");
+		// 	}
+		// }
+		/*
+		 * solution: it will make sure the open function is called once and only by one thread
+		 */
+		std::call_once(flag, [&](){
+			fstream.open("log.txt");
+		});
 	}
 };
-
 
 
 void function_1(LogFile& log)
@@ -134,7 +170,7 @@ int main()
 	
 	for(int i=0; i<100; ++i)
 	{
-		logFile.shared_print2("From main: ", i);
+		logFile.shared_print("From main: ", i);
 	}
 
 	t1.join();
