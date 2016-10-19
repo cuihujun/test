@@ -68,6 +68,7 @@ class LogFile
 private: 
 	std::mutex mu;
 	std::mutex mu2;
+	std::mutex mu3;
 	ofstream fstream;
 public: 
 	LogFile()
@@ -98,6 +99,21 @@ public:
 		std::lock_guard<std::mutex> guard(mu, std::adopt_lock);
 		std::lock_guard<std::mutex> guard2(mu2, std::adopt_lock);
 		fstream << msg << index << endl;
+	}
+	void shared_print3(string msg, int index)
+	{ 
+		std::unique_lock<std::mutex> guard(mu, std::defer_lock);
+
+		// here is not locked
+		cout << " this is not locked yet" << endl;
+
+		guard.lock(); 
+		fstream << msg << index << endl;
+		guard.unlock();
+
+		guard.lock(); 
+		cout << "lock and unlock can be used multiple time" << endl;
+		guard.unlock();
 	}
 };
 
